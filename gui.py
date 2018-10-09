@@ -18,10 +18,10 @@ def openfn():
     startchat = filedialog.askopenfilename(title='open')
     return startchat
 def open_voice():
-    import clevercozmo
+    import CozmoMainCode
   
     
-    clevercozmo.mainLoop()
+    CozmoMainCode.mainLoop()
     
 btn = Button(root, text='Start Chat', command=open_voice).pack()
 
