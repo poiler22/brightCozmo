@@ -36,12 +36,17 @@ def parseVoice():
     try:
         parsedText = recognize.recognize_google(voice)
     except sr.UnknownValueError:
-        print("The Google Speech Recognition API could not recognize speech.")
+        print("The Google Speech Recognition API could not recognize speech.(sr.UnknownValueError)")
         parsedText = input("Please type message instead:")
+        #parsedText = recognize.recognize_google(voice)
     except sr.RequestError as error:
         print("Could not contact Google Speech Recognition API. Error: {0}"\
         .format(error))
         parsedText = input("Please type message instead: ")
-
+        #parsedText = recognize.recognize_google(voice)
+    except speech_recognition.WaitTimeoutError:
+        print("The Google Speech Recognition API could not recognize speech.(speech_recognition.WaitTimeoutError)")
+        parsedText = input("Please type message instead:")
+        #parsedText = recognize.recognize_google(voice)
     #We return the recognized or inputted text.
     return parsedText
