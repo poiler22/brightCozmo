@@ -13,7 +13,7 @@ except:
     sys.exit("Could not load objects required for speech recognition.")
 
 #Listen timeout in seconds
-TIMEOUT = 1
+TIMEOUT = 2
 
 #A simple function that sets the ambient noise level to ease recognition.
 def initSpeech():
