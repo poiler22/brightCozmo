@@ -2,12 +2,12 @@ import cleverwrap
 import cozmo
 import time
 import sys
-import asyncio
-from cozmo.util import degrees, distance_mm, speed_mmps
+#import asyncio
+#from cozmo.util import degrees, distance_mm, speed_mmps
 import voiceParse
-from gtts import gTTS
-import speech_recognition as sr
-import os
+#from gtts import gTTS
+#import speech_recognition as sr
+#import os
 import re
 import webbrowser
 import smtplib
@@ -273,15 +273,15 @@ def mainLoop(robot: cozmo.robot.Robot):
             print("Human says: " + humanString)
             ListOfCommand.clear()
             functionsCozmo.cozmo_singing(robot)
-            robot.say_text("Do you like my song?").wait_for_completed()
+            robot.say_text("Do you like my song?",play_excited_animation=True).wait_for_completed()
             print("Cozmo says: " + "Do you like my song?")
             addEntry(log, "Cozmo says: " + "Do you like my song?")
             continue
 
-        if ({"angry", "cosmo"} <= set(ListOfCommand)) or ({"cosmo", "mad"} <= set(ListOfCommand)) or (
-                {"cozmo", "mad"} <= set(ListOfCommand)) or ({"cozmo", "angry"} <= set(ListOfCommand)):
+        if ({"random", "cosmo",'emotion'} <= set(ListOfCommand)) or ({"random", "cozmo",'emotion'} <= set(ListOfCommand)):
             ListOfCommand.clear()
             functionsCozmo.motion_step(robot)
+            continue
 
 
 
