@@ -128,6 +128,7 @@ def mainLoop(robot: cozmo.robot.Robot):
 
             if reg_ex:
                 SongName = reg_ex.group(1)
+                #you can add any song you want in the ListofSongs, by adding key word with its watch?v=?????????
                 ListofSongs = {"part of your world": "watch?v=gtpLsPPtC88", "full nocturne": 'watch?v=liTSRH4fix4',
                                'eyes on fire': 'watch?v=LAxCqlU-OAo', 'nocturne in f minor': 'watch?v=E3qHO9aOQYM',
                                'moonlight sonata': 'watch?v=4Tr0otuiQuU', 'clair de lune': 'watch?v=ea2WoUtbzuw',
