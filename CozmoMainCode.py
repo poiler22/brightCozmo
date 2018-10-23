@@ -210,7 +210,7 @@ def mainLoop(robot: cozmo.robot.Robot):
                 mail.starttls()
 
                 # In this line, put your email and password
-                mail.login('bright.ra5@gmail.com', 'BrighT01p')
+                mail.login('your email', 'your email\'s password')
 
                 # send to the recipient
                 mail.sendmail('recipient', ListofEmails.get(recipient), content +"\n" + "sent via Cozmo")
