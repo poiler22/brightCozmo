@@ -13,7 +13,7 @@ except:
     sys.exit("Could not load objects required for speech recognition.")
 
 #Listen timeout in seconds
-TIMEOUT = 10
+TIMEOUT = 5
 
 #A simple function that sets the ambient noise level to ease recognition.
 def initSpeech():
@@ -24,29 +24,31 @@ def initSpeech():
 def parseVoice():
     #This is where we stored the text
     parsedText = ""
-
+    voice = ""
+    try:
     #Now we can listen. We stored the resulting audio in the voice variable.
-    with microphone as source:
-        voice = recognize.listen(source, TIMEOUT)
-
+        with microphone as source:
+            voice = recognize.listen(source, TIMEOUT, 10)
     #Now, let's attempt to parse the result using the Google speech recognition
     #API. The fall back for all cases is to just have the user input variable
     #keyboard what they want to say.
-
+    except sr.WaitTimeoutError:
+        print("listening error found")
     try:
+        print("listening...")
         parsedText = recognize.recognize_google(voice)
     except sr.UnknownValueError:
         print("The Google Speech Recognition API could not recognize speech.(sr.UnknownValueError)")
-        parsedText = input("Please type message instead:")
-        #parsedText = recognize.recognize_google(voice)
+        #parsedText = input("Please type message instead:")
+        parsedText = parseVoice()
     except sr.RequestError as error:
         print("Could not contact Google Speech Recognition API. Error: {0}"\
         .format(error))
-        parsedText = input("Please type message instead: ")
-        #parsedText = recognize.recognize_google(voice)
-    except speech_recognition.WaitTimeoutError:
-        print("The Google Speech Recognition API could not recognize speech.(speech_recognition.WaitTimeoutError)")
-        parsedText = input("Please type message instead:")
-        #parsedText = recognize.recognize_google(voice)
+        #parsedText = input("Please type message instead: ")
+        parsedText = parseVoice()
+    except sr.WaitTimeoutError as error:
+        print("The Google Speech Recognition API could not recognize speech.{0}".format(error))
+        parsedText = parseVoice()
+        #parsedText = input("Please type message instead:")
     #We return the recognized or inputted text.
     return parsedText
