@@ -2,12 +2,13 @@ import cleverwrap
 import cozmo
 import time
 import sys
+import ast
 #import asyncio
 #from cozmo.util import degrees, distance_mm, speed_mmps
 import voiceParse
 #from gtts import gTTS
 #import speech_recognition as sr
-#import os
+import os.path
 import re
 import webbrowser
 import smtplib
@@ -94,9 +95,10 @@ def mainLoop(robot: cozmo.robot.Robot):
 
 
         # Check it for a quit condition.
-        if humanString.lower() == "quit":
+        if {'shut','down'} <= set(ListOfCommand) or {'cosmo','shut','down'} <= set(ListOfCommand):
             # If we quit, we log the quit and leave the program.
             addEntry(log, "Conversation ended.")
+            ListOfCommand.clear()
             sys.exit()
 
         if 'open reddit' in humanString:
@@ -137,17 +139,25 @@ def mainLoop(robot: cozmo.robot.Robot):
             if reg_ex:
                 SongName = reg_ex.group(1)
                 #you can add any song you want in the ListofSongs, by adding key word with its watch?v=?????????
-                ListofSongs = {"part of your world": "watch?v=gtpLsPPtC88", "full nocturne": 'watch?v=liTSRH4fix4',
+                json_file = open('texttest.json')
+                json_str = json_file.read()
+                dictOfSong = ast.literal_eval(json_str)
+                """ListofSongs = {"part of your world": "watch?v=gtpLsPPtC88", "full nocturne": 'watch?v=liTSRH4fix4',
                                'eyes on fire': 'watch?v=LAxCqlU-OAo', 'nocturne in f minor': 'watch?v=E3qHO9aOQYM',
                                'moonlight sonata': 'watch?v=4Tr0otuiQuU', 'clair de lune': 'watch?v=ea2WoUtbzuw',
-                               'hello': 'watch?v=YQHsXMglC9A', 'skyfall': 'watch?v=DeumyOzKqgI'}
+                               'hello': 'watch?v=YQHsXMglC9A', 'skyfall': 'watch?v=DeumyOzKqgI'}"""
 
                 subUrl = 'https://www.youtube.com/search?q=' + SongName
-                if SongName not in ListofSongs:
+                has_Song=False
+                for x in range(len(dictOfSong['song'])):
+                    if (dictOfSong['song'][x]['name']).lower() == SongName:
+                        webbrowser.open(dictOfSong['song'][x]['url'])
+                        has_Song=True
+                        break
+                if has_Song == False:
                     webbrowser.open(subUrl)
-                else:
-                    url = 'https://www.youtube.com/' + str(ListofSongs.get(SongName))
-                    webbrowser.open(url)
+                    continue
+                continue
             elif type(SongName) == type(None):
                 robot.say_text("No command found",in_parallel=True).wait_for_completed()
                 continue
@@ -199,43 +209,73 @@ def mainLoop(robot: cozmo.robot.Robot):
             addEntry(log, "Human says: " + recipient)
             print("Human says: " + recipient)
             #you can add any email in the line below
-            ListofEmails = {"bright":"bright_ra2@hotmail.com","boss":"biggerbosssuper@gmail.com",
-                            "tim":"tim.dettmar@gmail.com","lucky":"vorachat1239@gmail.com"}
-            if recipient in ListofEmails:
-                robot.say_text("What should I say?",in_parallel=True).wait_for_completed()
-                addEntry(log, "Cozmo says: " + "What should I say?")
-                print("Cozmo says: " + "What should I say?")
-                content = (voiceParse.parseVoice()).lower()
-                addEntry(log, "Human says: " + content)
-                print("Human says: " + content)
+            """ListofEmails = {"bright":"bright_ra2@hotmail.com","boss":"biggerbosssuper@gmail.com",
+                            "tim":"tim.dettmar@gmail.com","lucky":"vorachat1239@gmail.com"}"""
 
-                # init gmail SMTP
-                mail = smtplib.SMTP('smtp.gmail.com', 587)
+            json_file1 = open('texttest.json')
+            json_str1 = json_file1.read()
+            dictOfEmail = ast.literal_eval(json_str1)
 
-                # identify to server
-                mail.ehlo()
+            has_Email = False
+            for x in range(len(dictOfEmail['email'])):
+                if (dictOfEmail['email'][x]['name']).lower == recipient:
+                    robot.say_text("What should I say?", in_parallel=True).wait_for_completed()
+                    addEntry(log, "Cozmo says: " + "What should I say?")
+                    print("Cozmo says: " + "What should I say?")
+                    content = (voiceParse.parseVoice()).lower()
+                    addEntry(log, "Human says: " + content)
+                    print("Human says: " + content)
 
-                # encrypt session
-                mail.starttls()
+                    # init gmail SMTP
+                    ListOfSmtp = {'gmail':[{'name':'smtp.gmail.com','key': '587'}],
+                    'outlook':[{'name':'smtp-mail.outlook.com','key':'587' }],
+                    'hotmail': [{'name': 'smtp.live.com', 'key': '25'}]}
+                    checkSmtp = dictOfEmail['email'][x]['url'].split(".")
+                    b = checkSmtp.split("@")
+                    c = b[1].split(".")
+                    d = c[0]
+                    #check email whether our email is outlook or gmail
+                    if d in ListOfSmtp:
+                        mail = smtplib.SMTP(ListOfSmtp[d][0]['name'], ListOfSmtp[d][0]['key'])
+                        # smtp-mail.outlook.com
 
-                # In this line, put your email and password
-                mail.login('poiler33@outlook.com', 'bright01')
+                        # identify to server
+                        mail.ehlo()
 
-                # send to the recipient
-                mail.sendmail('recipient', ListofEmails.get(recipient), content +"\n" + "sent via Cozmo")
+                        # encrypt session
+                        mail.starttls()
 
-                # end mail connection
-                mail.close()
+                        # In this line, we open text file from gui
+                        json_file = open('useradding.json')
+                        json_str = json_file.read()
+                        dictOfUser = ast.literal_eval(json_str)
 
-                robot.say_text("Sent",in_parallel=True).wait_for_completed()
-                addEntry(log, "Cozmo says: " + "Sent")
-                print("Cozmo says: " + "Sent")
+                        # In this line, put your email and password
+                        mail.login(dictOfUser['email'][0]['name'], dictOfUser['email'][0]['password'])
 
-            else:
-                robot.say_text("I don\'t know him",in_parallel=True).wait_for_completed()
+                        # send to the recipient
+                        mail.sendmail('recipient', dictOfEmail['email'][x]['url'], content + "\n" + "sent via Cozmo")
+
+                        # end mail connection
+                        mail.close()
+
+                        robot.say_text("Sent", in_parallel=True).wait_for_completed()
+                        addEntry(log, "Cozmo says: " + "Sent")
+                        print("Cozmo says: " + "Sent")
+                        has_Email = True
+                        break
+
+                    else:
+                        robot.say_text("I can\'t send because I don't know the SMTP name", in_parallel=True).wait_for_completed()
+                        addEntry(log, "Cozmo says: " + "I can\'t send because I don't know the SMTP name")
+                        print("Cozmo says: " + "I can\'t send because I don't know the SMTP name")
+                        return mainLoop()
+
+            if has_Email == False:
+                robot.say_text("I don\'t know him", in_parallel=True).wait_for_completed()
                 addEntry(log, "Cozmo says: " + "I don\'t know him")
                 print("Cozmo says: " + "I don\'t know him")
-            continue
+                continue
 
 
         if 'weather forecast in' in humanString:
@@ -252,7 +292,7 @@ def mainLoop(robot: cozmo.robot.Robot):
                              'The lowest temperature will be %.1f degrees Celcius.' % (
                              forecasts[i].date, forecasts[i].text, int(forecasts[i].high),
                              int(forecasts[i].low)))
-                robot.say_text(TempetureForecast,in_parallel=True).wait_for_completed()
+                robot.say_text(TempetureForecast, use_cozmo_voice=False,duration_scalar=0.7, in_parallel=True).wait_for_completed()
                 addEntry(log, "Cozmo says: " + TempetureForecast)
                 print("Cozmo says: " + TempetureForecast)
                 continue
@@ -320,4 +360,5 @@ print("######################")
 print("#Type 'quit' to exit.#")
 print("######################")
 
-cozmo.run_program(mainLoop)
+def run():
+    cozmo.run_program(mainLoop, use_viewer=False, force_viewer_on_top=False)

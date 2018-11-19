@@ -21,7 +21,7 @@ and then constantly turn towards it to keep it in frame.
 
 import asyncio
 import time
-
+import voiceParse
 import cozmo
 sentimental = ''
 def notifyExpression():
@@ -36,6 +36,7 @@ def follow_faces(robot: cozmo.robot.Robot):
     face_to_follow = None
     checkfeelingsad = 0
     checkfeelingangry = 0
+    checkfeelinghappy = 0
     print("Press CTRL-C to quit")
     global sentimental
     while True:
@@ -52,27 +53,21 @@ def follow_faces(robot: cozmo.robot.Robot):
                     sentimental = "unknown"
                 if face_to_follow.expression == "happy":
                     sentimental = "happy"
+                    checkfeelinghappy = checkfeelinghappy + 1
                 if face_to_follow.expression == "sad":
                     sentimental = "sad"
-                    checkfeeling = checkfeeling + 1
+                    checkfeelingsad = checkfeelingsad + 1
                 if face_to_follow.expression == "surprised":
                     sentimental = "surprised"
                 if face_to_follow.expression == "angry":
                     sentimental = "angry"
+                    checkfeelingangry = checkfeelingangry + 1
                 if face_to_follow.expression == "neutral":
                     sentimental = "neutral"
             except asyncio.TimeoutError:
                 print("Didn't find a face - exiting!")
                 return
-        if checkfeelingsad == 2:
-            print('Are you sad?')
-            checkfeeling = 0
-            robot.say_text("Are you sad?", in_parallel=True).wait_for_completed()
 
-        elif checkfeelingangry == 2:
-            print('Are you ok?')
-            checkfeeling = 0
-            robot.say_text("Are you ok?", in_parallel=True).wait_for_completed()
         if turn_action:
             # Complete the turn action if one was in progress
             turn_action.wait_for_completed()
