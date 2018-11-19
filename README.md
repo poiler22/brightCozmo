@@ -1,5 +1,3 @@
-# clevercozmo
-A Python script I wrote to connect Cozmo with Cleverbot.
 ## How to Use
 In order to use this script, you need to:
 - Set Up the Cozmo SDK (Cozmo required): http://cozmosdk.anki.com/docs/
