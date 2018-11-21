@@ -4,7 +4,7 @@ import time
 import sys
 import ast
 #import asyncio
-#from cozmo.util import degrees, distance_mm, speed_mmps
+from cozmo.util import degrees, distance_mm, speed_mmps
 import voiceParse
 #from gtts import gTTS
 #import speech_recognition as sr
@@ -18,7 +18,7 @@ import functionsCozmo
 import face_follower
 from weather import Weather
 import asyncio
-
+from Docking import *
 
 APIKEY = "CC8o4IwXba1_aD74BgI46ZHxFBQ"
 
@@ -97,9 +97,22 @@ def mainLoop(robot: cozmo.robot.Robot):
         # Check it for a quit condition.
         if {'shut','down'} <= set(ListOfCommand) or {'cosmo','shut','down'} <= set(ListOfCommand):
             # If we quit, we log the quit and leave the program.
+            robot.say_text("Ok, shut down", in_parallel=True).wait_for_completed()
+            docking_cozmo(robot)
+            ListOfCommand.clear()
             addEntry(log, "Conversation ended.")
             ListOfCommand.clear()
             sys.exit()
+
+        if robot.battery_voltage <= 2.0:
+            print('Running out of battery')
+            robot.say_text("Running out of battery", in_parallel=True).wait_for_completed()
+            docking_cozmo(robot)
+
+        if {'go','out','charger'} <= set(ListOfCommand):
+            robot.drive_off_charger_contacts().wait_for_completed()
+            robot.drive_straight(distance_mm(150),speed_mmps(60)).wait_for_completed()
+            ListOfCommand.clear()
 
         if 'open reddit' in humanString:
             reg_ex = re.search('open reddit(.*)', humanString.lower())
@@ -115,7 +128,9 @@ def mainLoop(robot: cozmo.robot.Robot):
             robot.say_text("Done",in_parallel=True).wait_for_completed()
             continue
 
-
+        if {'go','to','the','charger'} <= set(ListOfCommand):
+            docking_cozmo(robot)
+            ListOfCommand.clear()
         if 'open google' in humanString:
             reg_ex = re.search('open google(.*)', humanString.lower())
             url = 'https://www.google.com/'
@@ -206,19 +221,21 @@ def mainLoop(robot: cozmo.robot.Robot):
             addEntry(log, "Cozmo says: " + "Who is the recipient?")
             print("Cozmo says: " + "Who is the recipient?")
             recipient = (voiceParse.parseVoice()).lower()
+            print(recipient)
             addEntry(log, "Human says: " + recipient)
             print("Human says: " + recipient)
             #you can add any email in the line below
             """ListofEmails = {"bright":"bright_ra2@hotmail.com","boss":"biggerbosssuper@gmail.com",
                             "tim":"tim.dettmar@gmail.com","lucky":"vorachat1239@gmail.com"}"""
 
-            json_file1 = open('texttest.json')
+            json_file1 = open('emailtext.json')
             json_str1 = json_file1.read()
             dictOfEmail = ast.literal_eval(json_str1)
 
             has_Email = False
             for x in range(len(dictOfEmail['email'])):
-                if (dictOfEmail['email'][x]['name']).lower == recipient:
+                print((dictOfEmail['email'][x]['name']).lower())
+                if (dictOfEmail['email'][x]['name']).lower() == recipient:
                     robot.say_text("What should I say?", in_parallel=True).wait_for_completed()
                     addEntry(log, "Cozmo says: " + "What should I say?")
                     print("Cozmo says: " + "What should I say?")
@@ -230,8 +247,8 @@ def mainLoop(robot: cozmo.robot.Robot):
                     ListOfSmtp = {'gmail':[{'name':'smtp.gmail.com','key': '587'}],
                     'outlook':[{'name':'smtp-mail.outlook.com','key':'587' }],
                     'hotmail': [{'name': 'smtp.live.com', 'key': '25'}]}
-                    checkSmtp = dictOfEmail['email'][x]['url'].split(".")
-                    b = checkSmtp.split("@")
+                    checkSmtp = dictOfEmail['email'][0]['url'].split(".")
+                    b = str(checkSmtp[0]).split("@")
                     c = b[1].split(".")
                     d = c[0]
                     #check email whether our email is outlook or gmail
@@ -292,7 +309,7 @@ def mainLoop(robot: cozmo.robot.Robot):
                              'The lowest temperature will be %.1f degrees Celcius.' % (
                              forecasts[i].date, forecasts[i].text, int(forecasts[i].high),
                              int(forecasts[i].low)))
-                robot.say_text(TempetureForecast, use_cozmo_voice=False,duration_scalar=0.7, in_parallel=True).wait_for_completed()
+                robot.say_text(TempetureForecast, use_cozmo_voice=True,duration_scalar=1, in_parallel=True).wait_for_completed()
                 addEntry(log, "Cozmo says: " + TempetureForecast)
                 print("Cozmo says: " + TempetureForecast)
                 continue
@@ -305,12 +322,14 @@ def mainLoop(robot: cozmo.robot.Robot):
                 headers={"Accept": "application/json"}
             )
             if res.status_code == requests.codes.ok:
-                robot.say_text(str(res.json()['joke']),in_parallel=True).wait_for_completed()
+                robot.say_text(str(res.json()['joke']),in_parallel=True,duration_scalar=1.2).wait_for_completed()
+                functionsCozmo.motion_step(robot)
                 print("Cozmo says: " + str(res.json()['joke']))
                 addEntry(log, "Cozmo says: " + str(res.json()['joke']))
 
             else:
                 robot.say_text(str(res.json()['oops!I ran out of jokes']),in_parallel=True).wait_for_completed()
+
                 print("Cozmo says: " + 'oops!I ran out of jokes')
                 addEntry(log, "Cozmo says: " + 'oops!I ran out of jokes')
             continue

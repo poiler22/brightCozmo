@@ -4,6 +4,7 @@ import sys
 import CozmoMainCode
 import threading
 from PIL import ImageTk, Image
+import os
 #import Tkinter as tk     # python 2
 #import tkFont as tkfont  # python 2
 import json
@@ -67,8 +68,11 @@ class StartPage(tk.Frame):
                             # command=lambda: [controller.show_frame("ConversationPage"),CozmoMainCode.run()])
 
         button3 = tk.Button(self, text="End", command=lambda: sys.exit())
+        #button4 = tk.Button(self, text="Restart",
+         #command=lambda: [os.execl(sys.executable, sys.executable, *sys.argv),SampleApp().mainloop()])
         button2.pack(pady=10)
         button1.pack(pady=10)
+        #button4.pack(pady=10)
         button3.pack(pady=10)
 
 
@@ -275,6 +279,7 @@ def brightDeleting2(nameOfSong, mylist):
     output_file.write(str(dictOfSong))
     mylist.delete('anchor')
 
+
 def doneNotification():
     toplevel = tk.Toplevel()
     label1 = tk.Label(toplevel, text="Done!", height=5, width=10)
@@ -420,6 +425,13 @@ class Delete(tk.Frame):
                            command=lambda: controller.show_frame("StartPage"))
         button.pack()
 
+def restart_program():
+    """Restarts the current program.
+    Note: this function does not return. Any cleanup action (like
+    saving data) must be done before calling this function."""
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
+
 if __name__ == "__main__":
-    app = SampleApp()
-    app.mainloop()
+    #app = SampleApp()
+    SampleApp().mainloop()
