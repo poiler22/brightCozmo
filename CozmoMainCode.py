@@ -128,7 +128,7 @@ def mainLoop(robot: cozmo.robot.Robot):
             robot.say_text("Done",in_parallel=True).wait_for_completed()
             continue
 
-        if {'go','to','the','charger'} <= set(ListOfCommand):
+        if {'go','to','charger'} <= set(ListOfCommand):
             docking_cozmo(robot)
             ListOfCommand.clear()
         if 'open google' in humanString:
