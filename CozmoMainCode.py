@@ -95,7 +95,7 @@ def mainLoop(robot: cozmo.robot.Robot):
 
 
         # Check it for a quit condition.
-        if {'shut','down'} <= set(ListOfCommand) or {'cosmo','shut','down'} <= set(ListOfCommand):
+        if {'shut','down','cozmo'} <= set(ListOfCommand) or {'cosmo','shut','down'} <= set(ListOfCommand):
             # If we quit, we log the quit and leave the program.
             robot.say_text("Ok, shut down", in_parallel=True).wait_for_completed()
             docking_cozmo(robot)
