@@ -20,7 +20,7 @@ from weather import Weather
 import asyncio
 from Docking import *
 
-APIKEY = "CC8o4IwXba1_aD74BgI46ZHxFBQ"
+APIKEY = "Put your own API, you can get this from Clever api website"
 
 # Charger
 cozmo.robot.Robot.drive_off_charger_on_connect = False
